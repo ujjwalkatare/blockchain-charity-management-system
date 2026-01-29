@@ -55,8 +55,7 @@ Builds transparency and trust
 
 🧩 How the System Works
 
-![Uploading ChatGPT Image Jan 29, 2026, 11_46_41 AM.png…]()
-
+![Uploading charity_bt_flow.png…]()
 
 
 Donor registers and logs in  
