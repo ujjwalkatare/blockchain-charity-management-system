@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: 250px;
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: all 0.3s;
+        border-radius: 5px;
+        margin: 5px 10px;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+
+      .btn-donate {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-donate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+      }
+
+      .trust-card {
+        border-left: 5px solid #3498db;
+      }
+
+      .trust-name {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .trust-contact {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .trust-address {
+        color: #34495e;
+        font-size: 0.95rem;
+        margin-top: 5px;
+      }
+
+      .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .alert-custom {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .stat-number {
+          font-size: 1.5rem;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .stat-card {
+          padding: 15px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Navbar -->
+    <div
+      class="mobile-navbar d-flex justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-hands-helping me-2"></i> Donation System
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">{{ fname|first|upper }}</div>
+        <span class="d-none d-sm-inline">{{ fname|truncatechars:10 }}</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3">{{ fname|first|upper }}</div>
+          <h5 class="text-center mb-4">{{ fname }}</h5>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1">
+          <a href="{% url 'user_dashboard' %}" class="active">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'donation' %}">
+            <i class="fas fa-donate me-2"></i> Make Donation
+          </a>
+          <a href="{% url 'user_transactions' %}">
+            <i class="fas fa-exchange-alt me-2"></i> My Transactions
+          </a>
+          <!-- <a href="{% url 'receive_transactions' %}">
+            <i class="fas fa-inbox me-2"></i> Received Transactions
+          </a> -->
+          <a href="{% url 'show_donation' %}">
+            <i class="fas fa-history me-2"></i> Donation History
+          </a>
+          <!-- <a href="{% url 'view' %}">
+            <i class="fas fa-eye me-2"></i> View Trusts
+          </a> -->
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav
+        class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block"
+      >
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-hands-helping text-primary me-2"></i> Donation
+            System
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3">Welcome, {{ fname }}</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i> Profile Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="{% url 'log_out' %}"
+                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="stat-number">{{ trusts.count }}</div>
+              <div class="stat-label">Available Trusts</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <div class="stat-number">
+                {{ transaction_count|default:"0" }}
+              </div>
+              <div class="stat-label">Total Donated</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="stat-number">{{ transaction_count|default:"0" }}</div>
+              <div class="stat-label">Transactions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NGO List Section -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-building me-2 text-primary"></i> NGO List
+              </div>
+
+              <div class="card-body">
+                {% if trusts %} {% for trust in trusts %}
+                <div class="py-3 border-bottom">
+                  <h6 class="trust-name mb-1">
+                    <i class="fas fa-hands-helping me-2 text-primary"></i>
+                    {{ trust.user.first_name }}
+                  </h6>
+
+                  <div class="trust-contact">
+                    <i class="fas fa-phone me-2"></i>
+                    {{ trust.contact_number }}
+                  </div>
+
+                  <div class="trust-address">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    {{ trust.address }}
+                  </div>
+                </div>
+                {% endfor %} {% else %}
+                <p class="text-muted text-center mb-0">
+                  No NGOs registered yet.
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mobile sidebar toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+        });
+
+        // Close sidebar when clicking on overlay
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+        });
+
+        // Close sidebar when clicking on a link (for mobile)
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth < 769) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+            }
+          });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+          var alerts = document.querySelectorAll(".alert");
+          alerts.forEach(function (alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          });
+        }, 5000);
+
+        // Form validation for donation amount
+        // document
+        //   .querySelectorAll('input[name="amount"]')
+        //   .forEach(function (input) {
+        //     input.addEventListener("change", function () {
+        //       if (this.value < 1) {
+        //         this.value = 1;
+        //         alert("Minimum donation amount is ₹1");
+        //       }
+        //     });
+        //   });
+
+        // Close sidebar on window resize if needed
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 769) {
+            sidebar.classList.remove("show");
+            sidebarOverlay.classList.remove("show");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# Environment
+.env
+
+# Blockchain runtime files
+chain/chain.json
+hashed_data.json
+
+# OS
+.DS_Store
+Thumbs.db

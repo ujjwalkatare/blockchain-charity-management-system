@@ -1,0 +1,131 @@
+{% extends 'base.html' %} {% block body %}
+
+<div id="fh5co-contact" class="animate-box">
+  <div class="container">
+    <h2>Donor Registration</h2>
+
+    <form action="" method="post">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+            <!-- User Name -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="fname"
+                  id="fname"
+                  value="{{ first_name }}"
+                  placeholder="User Name"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contact"
+                  name="contact"
+                  value="{{ contact }}"
+                  placeholder="Contact Number"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  name="username"
+                  id="username"
+                  value="{{ username }}"
+                  placeholder="Email"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  id="password"
+                  placeholder="Enter Password"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password1"
+                  id="password1"
+                  placeholder="Re-Enter Password"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address"
+                  name="address"
+                  value="{{ address }}"
+                  placeholder="Registered Address"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- 🔗 Ethereum Wallet Address (NEW) -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="eth_address"
+                  name="eth_address"
+                  value="{{ eth_address }}"
+                  placeholder="Ethereum Wallet Address (MetaMask) – Optional"
+                />
+                <small class="text-muted">
+                  Used only for blockchain-based donations & verification
+                </small>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock body %}

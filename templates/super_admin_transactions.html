@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Super Admin Dashboard - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        --secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        --danger-gradient: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        --sidebar-width: 250px;
+        --border-radius: 10px;
+        --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease-in-out;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: var(--primary-gradient);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-width);
+        z-index: 1050;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1040;
+          transition: var(--transition);
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: var(--sidebar-width);
+          transition: var(--transition);
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      /* Sidebar content */
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: var(--transition);
+        border-radius: 5px;
+        margin: 5px 10px;
+        position: relative;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .sidebar a.active::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: #e74c3c;
+      }
+
+      .sidebar .nav {
+        flex: 1;
+      }
+
+      /* Content area */
+      .content {
+        padding: 20px;
+        min-height: calc(100vh - 70px);
+      }
+
+      /* Cards */
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: var(--box-shadow);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+        padding: 1rem 1.5rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      /* Buttons */
+      .btn-donate {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+      }
+
+      .btn-donate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+      }
+
+      .btn-primary {
+        background: var(--secondary-gradient);
+        border: none;
+      }
+
+      .btn-success {
+        background: var(--success-gradient);
+        border: none;
+      }
+
+      .btn-danger {
+        background: var(--danger-gradient);
+        border: none;
+      }
+
+      .btn-outline-primary {
+        border-color: #667eea;
+        color: #667eea;
+      }
+
+      .btn-outline-primary:hover {
+        background: var(--secondary-gradient);
+        border-color: transparent;
+        color: white;
+      }
+
+      /* User Avatar */
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--secondary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      /* Alerts */
+      .alert-custom {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 1040;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        height: 70px;
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .hamburger-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Table Styling */
+      .table-custom {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        margin-bottom: 0;
+      }
+
+      .table-custom thead {
+        background: var(--secondary-gradient);
+        color: white;
+      }
+
+      .table-custom th {
+        border: none;
+        font-weight: 600;
+        padding: 15px;
+        vertical-align: middle;
+      }
+
+      .table-custom td {
+        padding: 15px;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .table-custom tbody tr {
+        transition: background-color 0.2s;
+      }
+
+      .table-custom tbody tr:hover {
+        background-color: rgba(52, 152, 219, 0.05);
+      }
+
+      .eth-address {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 5px 10px;
+        border-radius: 4px;
+        word-break: break-all;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .eth-address:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      /* Badges */
+      .badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        border: none;
+      }
+
+      .badge.bg-primary {
+        background: var(--secondary-gradient) !important;
+      }
+
+      .badge.bg-success {
+        background: var(--success-gradient) !important;
+      }
+
+      .badge.bg-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+      }
+
+      .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        color: #212529 !important;
+      }
+
+      /* Donation Header */
+      .donation-header {
+        background: #2c3e50;
+        color: white;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        padding: 1rem;
+      }
+
+      .util-row td {
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      /* Loading overlay */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        display: none;
+      }
+
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      /* Action buttons group */
+      .btn-group-sm > .btn {
+        border-radius: 5px !important;
+        margin: 0 2px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+          padding: 0.75rem 1rem;
+        }
+
+        .table-custom {
+          font-size: 14px;
+        }
+
+        .table-custom th,
+        .table-custom td {
+          padding: 10px 8px;
+        }
+
+        .eth-address {
+          font-size: 10px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .table-custom {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-sm {
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+      }
+
+      /* Print styles */
+      @media print {
+        .sidebar,
+        .mobile-navbar,
+        .navbar,
+        .btn,
+        .no-print {
+          display: none !important;
+        }
+
+        .main-content {
+          margin-left: 0 !important;
+        }
+
+        .card {
+          box-shadow: none !important;
+          border: 1px solid #dee2e6 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Mobile Navbar -->
+    <div class="mobile-navbar d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-crown me-2"></i> Super Admin
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">SA</div>
+        <span class="d-none d-sm-inline">Super Admin</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3">
+            SA
+          </div>
+          <h5 class="text-center mb-2">Super Admin</h5>
+          <small class="text-white-50">Full System Access</small>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1 px-2">
+          <a href="{% url 'super_admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'super_admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'super_admin_transactions' %}" class="{% if request.resolver_match.url_name == 'super_admin_transactions' %}active{% endif %}">
+            <i class="fas fa-users me-2"></i> Manage Donors
+          </a>
+          <!-- <a href="#" class="{% if request.resolver_match.url_name == 'manage_trusts' %}active{% endif %}">
+            <i class="fas fa-building me-2"></i> Manage Trusts
+          </a>
+          <a href="#" class="{% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+            <i class="fas fa-chart-bar me-2"></i> Analytics
+          </a>
+          <a href="#" class="{% if request.resolver_match.url_name == 'system_settings' %}active{% endif %}">
+            <i class="fas fa-cog me-2"></i> System Settings
+          </a> -->
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3 my-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block">
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-crown text-primary me-2"></i> Super Admin Dashboard
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3 text-muted">Welcome, Super Admin</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-user-shield me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-user-cog me-2"></i> Profile Settings
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-shield-alt me-2"></i> Security
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="{% url 'log_out' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Page Header -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="fas fa-exchange-alt me-2 text-primary"></i> Donations & Utilization Overview
+                </div>
+                <span class="badge bg-primary">{{ donations_data|length }} donations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DONATIONS LOOP -->
+        {% for item in donations_data %}
+        <div class="card mb-4 shadow-sm">
+          <!-- Donation Header -->
+          <div class="donation-header">
+            <div class="row align-items-center">
+              <div class="col-md-2 mb-2 mb-md-0">
+                <small><b>Donor</b></small><br />
+                <span class="h6 mb-0">{{ item.donor_name }}</span>
+              </div>
+
+              <div class="col-md-2 mb-2 mb-md-0">
+                <small><b>Trust</b></small><br />
+                {{ item.trust_name }}
+              </div>
+
+              <div class="col-md-2 mb-2 mb-md-0">
+                <small><b>ETH Amount</b></small><br />
+                <span class="badge bg-primary">{{ item.eth_amount }}</span>
+              </div>
+
+              <div class="col-md-2 mb-2 mb-md-0">
+                <small><b>INR Amount</b></small><br />
+                <span class="h6 text-warning mb-0">₹ {{ item.inr_amount }}</span>
+              </div>
+
+              <div class="col-md-2 mb-2 mb-md-0">
+                <small><b>Date</b></small><br />
+                <span class="text-light">{{ item.date|date:"d M Y" }}</span>
+              </div>
+
+              <div class="col-md-2">
+                <small><b>Transaction Hash</b></small><br />
+                <div class="eth-address text-warning" title="{{ item.tx_hash }}">
+                  {{ item.tx_hash|slice:":10" }}...{{ item.tx_hash|slice:"-8:" }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Utilization Table -->
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th width="50">#</th>
+                    <th>Amount Used (INR)</th>
+                    <th>Purpose</th>
+                    <th>Category</th>
+                    <th>Proof</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if item.utilizations %}
+                    {% for util in item.utilizations %}
+                    <tr class="util-row">
+                      <td class="text-center">{{ forloop.counter }}</td>
+                      <td class="fw-bold text-success">₹ {{ util.amount_used }}</td>
+                      <td>{{ util.purpose|truncatechars:50 }}</td>
+                      <td>
+                        <span class="badge bg-info">{{ util.category }}</span>
+                      </td>
+                      <td>
+                        {% if util.proof %}
+                          <a
+                            href="{{ util.proof.url }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary"
+                            title="View Proof"
+                          >
+                            <i class="fas fa-eye me-1"></i> View
+                          </a>
+                        {% else %}
+                          <span class="text-muted"><i class="fas fa-ban me-1"></i> No Proof</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if util.is_verified %}
+                          <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i> Approved
+                          </span>
+                        {% else %}
+                          <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i> Pending
+                          </span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if not util.is_verified %}
+                          <div class="btn-group btn-group-sm" role="group">
+                            <a
+                              href="{% url 'approve_utilization' util.id %}"
+                              class="btn btn-success"
+                              title="Approve Utilization"
+                              onclick="showLoading()"
+                            >
+                              <i class="fas fa-check"></i> Approve
+                            </a>
+                            <a
+                              href="{% url 'reject_utilization' util.id %}"
+                              class="btn btn-danger"
+                              title="Reject Utilization"
+                              onclick="return confirm('Are you sure you want to reject this utilization?') || event.preventDefault(); showLoading()"
+                            >
+                              <i class="fas fa-times"></i> Reject
+                            </a>
+                          </div>
+                        {% else %}
+                          <span class="text-muted">
+                            <i class="fas fa-lock me-1"></i> Locked
+                          </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No utilization submitted yet
+                      </td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info alert-custom">
+          <i class="fas fa-info-circle me-2"></i>
+          No donations found in the system.
+        </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if donations_data.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+          <ul class="pagination justify-content-center">
+            {% if donations_data.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ donations_data.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+
+            {% for i in donations_data.paginator.page_range %}
+              {% if donations_data.number == i %}
+              <li class="page-item active">
+                <span class="page-link">{{ i }}</span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if donations_data.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ donations_data.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;</span>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // DOM Ready function
+      document.addEventListener('DOMContentLoaded', function () {
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener('click', function () {
+          sidebar.classList.toggle('show');
+          sidebarOverlay.classList.toggle('show');
+          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        });
+
+        // Close sidebar when clicking on overlay
+        sidebarOverlay.addEventListener('click', function () {
+          sidebar.classList.remove('show');
+          sidebarOverlay.classList.remove('show');
+          document.body.style.overflow = '';
+        });
+
+        // Close sidebar when clicking on a link (for mobile)
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        sidebarLinks.forEach((link) => {
+          link.addEventListener('click', function () {
+            if (window.innerWidth < 769) {
+              sidebar.classList.remove('show');
+              sidebarOverlay.classList.remove('show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+          setTimeout(function () {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          }, 5000);
+        });
+
+        // Close sidebar on window resize if needed
+        window.addEventListener('resize', function () {
+          if (window.innerWidth >= 769) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+          }
+        });
+
+        // Handle table row clicks for better UX
+        const tableRows = document.querySelectorAll('.util-row');
+        tableRows.forEach(row => {
+          row.addEventListener('click', function (e) {
+            if (!e.target.closest('a') && !e.target.closest('button')) {
+              this.classList.toggle('table-active');
+            }
+          });
+        });
+
+        // Copy transaction hash on click
+        const txHashes = document.querySelectorAll('.eth-address');
+        txHashes.forEach(txHash => {
+          txHash.addEventListener('click', function () {
+            const fullHash = this.getAttribute('title');
+            if (fullHash) {
+              navigator.clipboard.writeText(fullHash).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.classList.add('bg-success', 'text-white');
+                setTimeout(() => {
+                  this.textContent = originalText;
+                  this.classList.remove('bg-success', 'text-white');
+                }, 2000);
+              });
+            }
+          });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+          // Close sidebar with Escape key
+          if (e.key === 'Escape' && window.innerWidth < 769) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+          }
+          
+          // Toggle sidebar with Ctrl+/
+          if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            sidebarToggle.click();
+          }
+        });
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Handle page transitions
+        const pageLinks = document.querySelectorAll('a[href^="/"], a[href^="{% url']');
+        pageLinks.forEach(link => {
+          link.addEventListener('click', function (e) {
+            // Only show loading for internal links that aren't already loading
+            if (this.getAttribute('href') && !this.classList.contains('disabled')) {
+              const href = this.getAttribute('href');
+              if (href && !href.startsWith('#') && !this.hasAttribute('data-bs-toggle')) {
+                showLoading();
+              }
+            }
+          });
+        });
+      });
+
+      // Global functions
+      function showLoading() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function hideLoading() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      }
+
+      // Hide loading when page is fully loaded
+      window.addEventListener('load', hideLoading);
+
+      // Error handling for page load
+      window.addEventListener('error', hideLoading);
+
+      // Confirm before rejecting utilization
+      function confirmReject(utilId) {
+        return confirm('Are you sure you want to reject this utilization? This action cannot be undone.');
+      }
+
+      // Print page function
+      function printPage() {
+        window.print();
+      }
+
+      // Export data function
+      function exportData(format) {
+        showLoading();
+        // Simulate export process
+        setTimeout(() => {
+          hideLoading();
+          alert(`Data exported as ${format.toUpperCase()} successfully!`);
+        }, 1500);
+      }
+    </script>
+  </body>
+</html>

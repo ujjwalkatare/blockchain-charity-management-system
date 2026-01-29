@@ -1,0 +1,81 @@
+{% extends 'base.html' %} {% block body %}
+<div id="fh5co-contact" class="animate-box">
+  <div class="container">
+    <h2>NGO Registration</h2>
+    <form action="" method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="fname"
+                  id="fname"
+                  value="{{ first_name }}"
+                  placeholder="First Name"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="lname"
+                  id="lname"
+                  value="{{ last_name }}"
+                  placeholder="Last Name"
+                />
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  name="username"
+                  id="username"
+                  value="{{ username }}"
+                  placeholder="Email"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  id="password"
+                  value="{{ password }}"
+                  placeholder="Enter Password"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password1"
+                  id="password1"
+                  value="{{ password1 }}"
+                  placeholder="Re-Enter Password"
+                />
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock body %}

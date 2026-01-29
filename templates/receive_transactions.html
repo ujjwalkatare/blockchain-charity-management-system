@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Received Transactions - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: 250px;
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: all 0.3s;
+        border-radius: 5px;
+        margin: 5px 10px;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+
+      .transaction-card {
+        border-left: 5px solid #2ecc71;
+        transition: all 0.3s;
+      }
+
+      .transaction-card:hover {
+        transform: translateX(5px);
+      }
+
+      .transaction-card.incoming {
+        border-left-color: #2ecc71;
+      }
+
+      .transaction-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .transaction-amount.incoming {
+        color: #2ecc71;
+      }
+
+      .transaction-hash {
+        font-family: monospace;
+        background-color: #f8f9fa;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        word-break: break-all;
+      }
+
+      .transaction-datetime {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .sender-info {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .alert-custom {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .badge-blockchain {
+        background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+        color: white;
+      }
+
+      .badge-incoming {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        color: white;
+      }
+
+      .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #7f8c8d;
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .transaction-amount {
+          font-size: 1.3rem;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .transaction-hash {
+          font-size: 0.75rem;
+        }
+
+        .stat-card {
+          padding: 15px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Navbar -->
+    <div
+      class="mobile-navbar d-flex justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-hands-helping me-2"></i> Donation System
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">{{ fname|first|upper }}</div>
+        <span class="d-none d-sm-inline">{{ fname|truncatechars:10 }}</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3">{{ fname|first|upper }}</div>
+          <h5 class="text-center mb-4">{{ fname }}</h5>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1">
+          <a href="{% url 'user_dashboard' %}">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'donation' %}">
+            <i class="fas fa-donate me-2"></i> Make Donation
+          </a>
+          <a href="{% url 'user_transactions' %}">
+            <i class="fas fa-exchange-alt me-2"></i> My Transactions
+          </a>
+          <a href="{% url 'receive_transactions' %}" class="active">
+            <i class="fas fa-inbox me-2"></i> Received Transactions
+          </a>
+          <a href="{% url 'show_donation' %}">
+            <i class="fas fa-history me-2"></i> Donation History
+          </a>
+          <a href="{% url 'view' %}">
+            <i class="fas fa-eye me-2"></i> View Trusts
+          </a>
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav
+        class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block"
+      >
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-hands-helping text-primary me-2"></i> Donation
+            System
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3">Welcome, {{ fname }}</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i> Profile Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="{% url 'log_out' %}"
+                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Header Card -->
+        <!-- Blockchain Info -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div
+              class="alert alert-success alert-custom d-flex align-items-center"
+              role="alert"
+            >
+              <i class="fas fa-check-circle fa-2x me-3"></i>
+              <div>
+                <h5 class="alert-heading mb-1">
+                  <i class="fas fa-inbox me-1"></i> Funds Successfully Received
+                </h5>
+                <p class="mb-0">
+                  All transactions shown below have been successfully received
+                  and recorded on the blockchain. Your funds are secure and
+                  transparently tracked.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Transaction Statistics -->
+        {% if received_transactions %}
+        <div class="row mt-4">
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="stat-number">₹ {{ total_amount|default:"0" }}</div>
+              <div class="stat-label">Total Amount Received</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-number">
+                {{ unique_senders_count|default:"0" }}
+              </div>
+              <div class="stat-label">Unique Senders</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="stat-number">{% now "M" %}</div>
+              <div class="stat-label">Current Month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Transactions List -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <span
+                  ><i class="fas fa-history me-2 text-primary"></i> Incoming
+                  Transactions</span
+                >
+                <span class="badge bg-success"
+                  >{{ transactions_count|default:"0" }} Records</span
+                >
+              </div>
+              <div class="card-body">
+                {% if received_transactions %}
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Sender</th>
+                        <th>Amount</th>
+                        <th>Transaction Hash</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for entry in received_transactions %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                          <span class="sender-info">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ entry.transaction.sender }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="transaction-amount incoming">
+                            +₹ {{ entry.transaction.amount }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="transaction-hash">
+                            {{ entry.transaction.hash }}
+                          </div>
+                        </td>
+                        <td>
+                          <div class="transaction-datetime">
+                            <i class="far fa-clock me-1"></i>
+                            {{ entry.datetime }}
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge badge-incoming">
+                            <i class="fas fa-check-circle me-1"></i> Received
+                          </span>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Detailed Cards View (for smaller screens) -->
+                <div class="d-none d-md-block d-lg-none">
+                  <div class="row">
+                    {% for entry in received_transactions %}
+                    <div class="col-12 mb-3">
+                      <div class="card transaction-card incoming">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col-8">
+                              <h6 class="mb-2">
+                                <i class="fas fa-user-circle me-1"></i>
+                                From: {{ entry.transaction.sender }}
+                              </h6>
+                              <div class="transaction-amount incoming mb-2">
+                                +₹ {{ entry.transaction.amount }}
+                              </div>
+                              <div class="transaction-datetime mb-2">
+                                <i class="far fa-clock me-1"></i>
+                                {{ entry.datetime }}
+                              </div>
+                              <div class="transaction-hash">
+                                {{ entry.transaction.hash|truncatechars:30 }}
+                              </div>
+                            </div>
+                            <div class="col-4 text-end">
+                              <span class="badge badge-incoming">
+                                <i class="fas fa-inbox me-1"></i> Received
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                  <div class="empty-state-icon">
+                    <i class="fas fa-inbox"></i>
+                  </div>
+                  <h4 class="mb-3">No Received Transactions</h4>
+                  <p class="text-muted mb-4">
+                    You haven't received any transactions yet. When someone
+                    sends you funds, they will appear here.
+                  </p>
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    To receive donations, make sure your trust is registered in
+                    the system.
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Timeline -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-stream me-2 text-primary"></i> Recent Activity
+                Timeline
+              </div>
+              <div class="card-body">
+                <div class="timeline">
+                  {% for entry in received_transactions|slice:":5" %}
+                  <div class="timeline-item mb-3">
+                    <div class="timeline-marker bg-success"></div>
+                    <div class="timeline-content">
+                      <div class="d-flex justify-content-between">
+                        <h6 class="mb-1">
+                          Received ₹{{ entry.transaction.amount }} from {{
+                          entry.transaction.sender }}
+                        </h6>
+                        <small class="text-muted">{{ entry.datetime }}</small>
+                      </div>
+                      <p class="mb-0 text-muted">
+                        <small
+                          >Transaction Hash: {{ entry.transaction.hash }}</small
+                        >
+                      </p>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mobile sidebar toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+        });
+
+        // Close sidebar when clicking on overlay
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+        });
+
+        // Close sidebar when clicking on a link (for mobile)
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth < 769) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+            }
+          });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+          var alerts = document.querySelectorAll(".alert");
+          alerts.forEach(function (alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          });
+        }, 5000);
+
+        // Close sidebar on window resize if needed
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 769) {
+            sidebar.classList.remove("show");
+            sidebarOverlay.classList.remove("show");
+          }
+        });
+
+        // Copy transaction hash on click
+        document.querySelectorAll(".transaction-hash").forEach((element) => {
+          element.addEventListener("click", function () {
+            const hash = this.textContent.trim();
+            navigator.clipboard.writeText(hash).then(() => {
+              const originalText = this.innerHTML;
+              this.innerHTML =
+                '<i class="fas fa-check text-success me-1"></i> Copied!';
+              setTimeout(() => {
+                this.innerHTML = originalText;
+              }, 2000);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

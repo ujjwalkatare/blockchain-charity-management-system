@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<!-- ===================== -->
+<!-- Hero Section -->
+<!-- ===================== -->
+<div class="fh5co-hero">
+  <div class="fh5co-overlay"></div>
+
+  <div
+    class="fh5co-cover text-center"
+    data-stellar-background-ratio="0.5"
+    style="background-image: url(static/images/cover_bg_1.jpg)"
+  >
+    <div class="desc animate-box">
+      <h1 style="font-weight: 700; letter-spacing: 1px;">
+        Charity Payment System
+      </h1>
+
+      <h3 style="margin-top: 10px; font-weight: 400;">
+        Powered by <strong>Blockchain Technology</strong>
+      </h3>
+
+      <p style="font-size: 18px; margin: 25px 0;">
+        Secure • Transparent • Trustworthy Donations
+      </p>
+
+      <a href="log_in" class="btn btn-primary btn-lg">
+        Donate Now
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- Features Section -->
+<!-- ===================== -->
+<div id="fh5co-features" style="padding: 70px 0;">
+  <div class="container">
+    <div class="row">
+
+      <!-- Feature 1 -->
+      <div class="col-md-4 text-center animate-box">
+        <div class="feature-left">
+          <span class="icon">
+            <i class="icon-lock"></i>
+          </span>
+          <div class="feature-copy">
+            <h3>Secure Transactions</h3>
+            <p>
+              All donations are securely recorded using blockchain technology
+              ensuring tamper-proof transactions.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="col-md-4 text-center animate-box">
+        <div class="feature-left">
+          <span class="icon">
+            <i class="icon-eye"></i>
+          </span>
+          <div class="feature-copy">
+            <h3>Complete Transparency</h3>
+            <p>
+              Donors can track donation usage with real-time records and proof
+              uploaded by NGOs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="col-md-4 text-center animate-box">
+        <div class="feature-left">
+          <span class="icon">
+            <i class="icon-heart"></i>
+          </span>
+          <div class="feature-copy">
+            <h3>Verified NGOs</h3>
+            <p>
+              Only authenticated and verified NGOs are allowed to receive
+              donations on this platform.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- Call to Action -->
+<!-- ===================== -->
+<div style="background:#f7f7f7; padding:60px 0; text-align:center;">
+  <h2>Make a Difference Today</h2>
+  <p style="margin:15px 0; font-size:16px;">
+    Your contribution can bring transparency and hope to those in need.
+  </p>
+  <a href="log_in" class="btn btn-success btn-lg">
+    Start Donating
+  </a>
+</div>
+
+{% endblock body %}

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donation History - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: 250px;
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: all 0.3s;
+        border-radius: 5px;
+        margin: 5px 10px;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+
+      .donation-card {
+        border-left: 5px solid #3498db;
+        transition: all 0.3s;
+      }
+
+      .donation-card:hover {
+        transform: translateX(5px);
+      }
+
+      .donation-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .donation-purpose {
+        color: #34495e;
+        line-height: 1.6;
+      }
+
+      .donation-trust {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .donation-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .alert-custom {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .badge-purpose {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #7f8c8d;
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .proof-image {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-top: 10px;
+        border: 2px solid #f1f1f1;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      .proof-image:hover {
+        transform: scale(1.05);
+      }
+
+      .modal-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .donation-amount {
+          font-size: 1.3rem;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .stat-card {
+          padding: 15px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Navbar -->
+    <div
+      class="mobile-navbar d-flex justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-hands-helping me-2"></i> Donation System
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">{{ fname|first|upper }}</div>
+        <span class="d-none d-sm-inline">{{ fname|truncatechars:10 }}</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3">{{ fname|first|upper }}</div>
+          <h5 class="text-center mb-4">{{ fname }}</h5>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1">
+          <a href="{% url 'user_dashboard' %}">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'donation' %}">
+            <i class="fas fa-donate me-2"></i> Make Donation
+          </a>
+          <a href="{% url 'user_transactions' %}">
+            <i class="fas fa-exchange-alt me-2"></i> My Transactions
+          </a>
+          <!-- <a href="{% url 'receive_transactions' %}">
+            <i class="fas fa-inbox me-2"></i> Received Transactions
+          </a> -->
+          <a href="{% url 'show_donation' %}" class="active">
+            <i class="fas fa-history me-2"></i> Donation History
+          </a>
+          <!-- <a href="{% url 'view' %}">
+            <i class="fas fa-eye me-2"></i> View Trusts
+          </a> -->
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav
+        class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block"
+      >
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-hands-helping text-primary me-2"></i> Donation
+            System
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3">Welcome, {{ fname }}</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i> Profile Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="{% url 'log_out' %}"
+                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+       
+        <div class="card mb-4">
+        
+        </div> 
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+
+        <!-- Donation Statistics -->
+        {% if donation %}
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="stat-number">
+                ₹ {% with total=0 %}
+                  {% for d in donation %}
+                    {% with total=total|add:d.used_amt %}
+                    {% endwith %}
+                  {% endfor %}
+                  {{ total|floatformat:2 }}
+                {% endwith %}
+              </div>
+              <div class="stat-label">Total Amount Utilized</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="stat-number">
+                {% with unique_trusts=0 %}
+                  {% for d in donation %}
+                    {% if forloop.first %}
+                      {% with unique_trusts=unique_trusts|add:1 %}
+                      {% endwith %}
+                    {% endif %}
+                  {% endfor %}
+                  {{ unique_trusts }}
+                {% endwith %}
+              </div>
+              <div class="stat-label">Trusts Supported</div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div class="stat-number">
+                {% with proofs=0 %}
+                  {% for d in donation %}
+                    {% if d.proof %}
+                      {% with proofs=proofs|add:1 %}
+                      {% endwith %}
+                    {% endif %}
+                  {% endfor %}
+                  {{ proofs }}
+                {% endwith %}
+              </div>
+              <div class="stat-label">Proofs Available</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+<!-- Donations List -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+          <i class="fas fa-list-alt me-2 text-primary"></i>
+          Donation & Approved Utilization Records
+        </span>
+        <span class="badge bg-primary">
+          {{ donations|length }} Donations
+        </span>
+      </div>
+
+      <div class="card-body">
+        {% if donations %}
+          {% for d in donations %}
+          <!-- SINGLE DONATION -->
+          <div class="card donation-card mb-4">
+            <div class="card-body">
+
+              <!-- Donation Info -->
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <h6 class="donation-trust">
+                    <i class="fas fa-landmark me-1"></i>
+                    {{ d.trust_name }}
+                  </h6>
+                  <div class="donation-date">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    {{ d.date|date:"d M Y, h:i A" }}
+                  </div>
+                  <small class="text-muted">
+                    Tx Hash: {{ d.tx_hash|truncatechars:20 }}
+                  </small>
+                </div>
+
+                <div class="col-md-4 text-end">
+                  <div class="donation-amount">
+                    ₹ {{ d.inr_amount }}
+                  </div>
+                  <small class="text-muted">
+                    ({{ d.eth_amount }} ETH)
+                  </small>
+                </div>
+              </div>
+
+              <!-- UTILIZATIONS -->
+              {% if d.utilizations %}
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Purpose</th>
+                      <th>Amount Used</th>
+                      <th>Proof</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for u in d.utilizations %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ u.purpose }}</td>
+                      <td>
+                        <strong>₹ {{ u.amount_used }}</strong>
+                      </td>
+                      <td>
+                        {% if u.proof %}
+                        <button
+                          class="btn btn-sm btn-outline-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#proofModal{{ u.id }}"
+                        >
+                          <i class="fas fa-eye me-1"></i> View Proof
+                        </button>
+                        {% else %}
+                        <span class="badge bg-secondary">No Proof</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="alert alert-warning mt-3">
+                <i class="fas fa-clock me-2"></i>
+                Utilization submitted by trust but not approved yet.
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <h4>No Donation Records Found</h4>
+          <p class="text-muted">
+            Approved utilization details will appear here once verified by Super Admin.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        <!-- Modals for Proof Images -->
+     {% for d in donations %}
+  {% for u in d.utilizations %}
+    {% if u.proof %}
+    <div class="modal fade" id="proofModal{{ u.id }}" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-file-image me-2"></i> Proof of Utilization
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img src="{{ u.proof.url }}" class="modal-image" />
+            <div class="mt-3">
+              <p><strong>Purpose:</strong> {{ u.purpose }}</p>
+              <p><strong>Amount Used:</strong> ₹ {{ u.amount_used }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+
+        <!-- Modals for Full Purpose Text -->
+        {% for d in donation %}
+        <div
+          class="modal fade"
+          id="purposeModal{{ forloop.counter }}"
+          tabindex="-1"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  <i class="fas fa-info-circle me-2"></i> Utilization Purpose
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>{{ d.purpose }}</p>
+                <div class="mt-3">
+                  <p><strong>Trust:</strong> {{ d.trust }}</p>
+                  <p><strong>Amount:</strong> ₹ {{ d.used_amt }}</p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mobile sidebar toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+        });
+
+        // Close sidebar when clicking on overlay
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+        });
+
+        // Close sidebar when clicking on a link (for mobile)
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth < 769) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+            }
+          });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function () {
+          var alerts = document.querySelectorAll(".alert");
+          alerts.forEach(function (alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          });
+        }, 5000);
+
+        // Close sidebar on window resize if needed
+        window.addEventListener("resize", function () {
+          if (window.innerWidth >= 769) {
+            sidebar.classList.remove("show");
+            sidebarOverlay.classList.remove("show");
+          }
+        });
+      });
+
+      // Function to show full purpose in modal
+      function showFullPurpose(id) {
+        const modal = new bootstrap.Modal(
+          document.getElementById("purposeModal" + id.replace("card", ""))
+        );
+        modal.show();
+      }
+    </script>
+  </body>
+</html>

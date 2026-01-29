@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make Donation - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: 250px;
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: all 0.3s;
+        border-radius: 5px;
+        margin: 5px 10px;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+      }
+
+      .btn-donate {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-donate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+      }
+
+      .btn-blockchain {
+        background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-blockchain:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        color: white;
+      }
+
+      .trust-card {
+        border-left: 5px solid #3498db;
+      }
+
+      .trust-name {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .trust-contact {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .trust-address {
+        color: #34495e;
+        font-size: 0.95rem;
+        margin-top: 5px;
+      }
+
+      .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .alert-custom {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .blockchain-info {
+        background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      /* Blockchain Address Styling */
+      .eth-address {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        word-break: break-all;
+        margin: 10px 0;
+      }
+
+      .eth-label {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      /* Metamask status */
+      .metamask-status {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+
+      .metamask-connected {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .metamask-not-connected {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      /* Loading spinner */
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .stat-number {
+          font-size: 1.5rem;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .stat-card {
+          padding: 15px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Navbar -->
+    <div
+      class="mobile-navbar d-flex justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-hands-helping me-2"></i> Donation System
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">{{ fname|first|upper }}</div>
+        <span class="d-none d-sm-inline">{{ fname|truncatechars:10 }}</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3">{{ fname|first|upper }}</div>
+          <h5 class="text-center mb-4">{{ fname }}</h5>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1">
+          <a href="{% url 'user_dashboard' %}">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'donation' %}" class="active">
+            <i class="fas fa-donate me-2"></i> Make Donation
+          </a>
+          <a href="{% url 'user_transactions' %}">
+            <i class="fas fa-exchange-alt me-2"></i> My Transactions
+          </a>
+          <!-- <a href="{% url 'receive_transactions' %}">
+            <i class="fas fa-inbox me-2"></i> Received Transactions
+          </a> -->
+          <a href="{% url 'show_donation' %}">
+            <i class="fas fa-history me-2"></i> Donation History
+          </a>
+          <!-- <a href="{% url 'view' %}">
+            <i class="fas fa-eye me-2"></i> View Trusts
+          </a> -->
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav
+        class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block"
+      >
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-hands-helping text-primary me-2"></i> Donation
+            System
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3">Welcome, {{ fname }}</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i> Profile Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="{% url 'log_out' %}"
+                    ><i class="fas fa-sign-out-alt me-2"></i> Logout</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- MetaMask Status -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div id="metamaskStatus" class="metamask-status d-none">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-wallet me-2"></i>
+                <span id="metamaskStatusText">Checking MetaMask...</span>
+                <div id="metamaskSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available Trusts for Donation -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <span>
+                  <i class="fas fa-hands-helping me-2 text-primary"></i>
+                  Select a Trust to Donate
+                </span>
+                <span class="badge bg-primary">{{ trusts.count }} Trusts</span>
+              </div>
+
+              <div class="card-body">
+                {% if trusts %}
+                <div class="row">
+                  {% for trust in trusts %}
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card trust-card h-100">
+                      <div class="card-body">
+                        <!-- ✅ TRUST / NGO NAME -->
+                        <h5 class="trust-name">
+                          <i class="fas fa-landmark me-2 text-primary"></i>
+                          {{ trust.trust_name|default:trust.user.username }}
+                        </h5>
+
+                        <!-- ✅ ETH ADDRESS (PHASE 2+) -->
+                        <div class="mb-3">
+                          <span class="eth-label">
+                            <i class="fab fa-ethereum me-1"></i> Ethereum Address:
+                          </span>
+                          <div class="eth-address">
+                            {{ trust.eth_address|default:"0x0000000000000000000000000000000000000000" }}
+                          </div>
+                        </div>
+
+                        <!-- CONTACT -->
+                        <p class="trust-contact">
+                          <i class="fas fa-phone me-1"></i>
+                          {{ trust.contact_number }}
+                        </p>
+
+                        <!-- ADDRESS -->
+                        <p class="trust-address">
+                          <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+                          {{ trust.address|truncatechars:50 }}
+                        </p>
+
+                        <!-- ACTION BUTTONS -->
+                        <div class="d-grid gap-2">
+                          <button
+                            class="btn btn-donate donate-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#donateModal"
+                            data-trust-id="{{ trust.id }}"
+                            data-trust-name="{{ trust.trust_name|default:trust.user.username }}"
+                            data-trust-eth-address="{{ trust.eth_address }}"
+                          >
+                            <i class="fas fa-donate me-1"></i> Donate Now
+                          </button>
+
+                          <button
+                            class="btn btn-blockchain"
+                            onclick="showBlockchainInfo('{{ trust.trust_name|default:trust.user.username }}', '{{ trust.eth_address }}')"
+                          >
+                            <i class="fas fa-link me-1"></i> View Blockchain
+                            Info
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                {% else %}
+                <div class="text-center py-5">
+                  <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                  <h5>No Trusts Available for Donation</h5>
+                  <p class="text-muted">
+                    There are currently no registered trusts available for
+                    donation.
+                  </p>
+                  <a href="{% url 'user_dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <!-- Single Donation Modal (moved outside the loop for performance) -->
+<div class="modal fade" id="donateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="donateModalTitle">
+          <i class="fas fa-donate me-2"></i> Donate to Trust
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <!-- 🔴 CHANGED: Form with NO action, handled by JS -->
+      <form id="donationForm" method="POST">
+        {% csrf_token %}
+
+        <div class="modal-body">
+          <!-- ✅ TRUST ID (HIDDEN & SAFE) -->
+          <input type="hidden" name="trust_id" id="trustIdInput" />
+          
+          <!-- ✅ TRANSACTION HASH (HIDDEN - PHASE 3+) -->
+          <input type="hidden" name="tx_hash" id="txHashInput" />
+          
+          <!-- ✅ ETH ADDRESS (HIDDEN & ADDED name attribute) -->
+          <input
+            type="hidden"
+            id="trustEthAddressInput"
+            name="trust_eth_address"
+          />
+
+          <!-- ✅ ORGANIZATION NAME (AUTO FILLED) -->
+          <div class="mb-3">
+            <label class="form-label">Organization Name</label>
+            <input
+              type="text"
+              class="form-control"
+              name="org_name"
+              id="orgNameInput"
+              readonly
+            />
+          </div>
+
+          <!-- ✅ ETH ADDRESS DISPLAY -->
+          <div class="mb-3">
+            <label class="form-label">Destination ETH Address</label>
+            <input
+              type="text"
+              class="form-control eth-address"
+              id="displayEthAddress"
+              readonly
+            />
+            <div class="form-text">This is where your ETH will be sent</div>
+          </div>
+
+          <!-- 🔴 CHANGED: Amount in ETH (Phase 2+) -->
+          <div class="mb-3">
+            <label class="form-label">Amount (₹ INR)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="amountInrInput"
+              min="1"
+              step="1"
+              required
+              placeholder="Enter amount in INR"
+            />
+            <div class="form-text">Minimum donation amount is 0.001 ETH</div>
+            <!-- hidden ETH value -->
+            <input type="hidden" id="amountEthInput" />
+          </div>
+
+          <!-- METAMASK STATUS IN MODAL -->
+          <div id="modalMetamaskStatus" class="metamask-status d-none mb-3">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-wallet me-2"></i>
+              <span id="modalMetamaskStatusText"></span>
+            </div>
+          </div>
+
+          <!-- INFO -->
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Your donation will be sent via MetaMask and recorded on the blockchain for complete transparency.
+          </div>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Please ensure you have sufficient ETH in your MetaMask wallet before proceeding.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <!-- 🔴 CHANGED: Button type is "button" not "submit" -->
+          <button
+            type="button"
+            id="confirmDonationBtn"
+            class="btn btn-donate"
+            onclick="processDonation()"
+          >
+            <i class="fas fa-paper-plane me-1"></i>
+            <span id="confirmBtnText">Confirm Donation</span>
+            <span
+              id="confirmBtnSpinner"
+              class="spinner-border spinner-border-sm d-none ms-1"
+            ></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+  /* =====================================================
+     MOBILE SIDEBAR TOGGLE
+  ===================================================== */
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+  if (sidebarToggle && sidebar && sidebarOverlay) {
+    sidebarToggle.addEventListener("click", function () {
+      sidebar.classList.toggle("show");
+      sidebarOverlay.classList.toggle("show");
+    });
+
+    sidebarOverlay.addEventListener("click", function () {
+      sidebar.classList.remove("show");
+      sidebarOverlay.classList.remove("show");
+    });
+
+    document.querySelectorAll(".sidebar a").forEach((link) => {
+      link.addEventListener("click", function () {
+        if (window.innerWidth < 769) {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+        }
+      });
+    });
+  }
+
+  /* =====================================================
+     DONATION MODAL DATA BINDING
+  ===================================================== */
+  const donateModal = document.getElementById("donateModal");
+
+  if (donateModal) {
+    donateModal.addEventListener("show.bs.modal", function (event) {
+      const button = event.relatedTarget;
+      if (!button) return;
+
+      const trustName = button.getAttribute("data-trust-name");
+      const trustId = button.getAttribute("data-trust-id");
+      const trustEthAddress = button
+        .getAttribute("data-trust-eth-address")
+        ?.trim();
+
+      document.getElementById("trustIdInput").value = trustId;
+      document.getElementById("orgNameInput").value = trustName;
+      document.getElementById("trustEthAddressInput").value = trustEthAddress;
+      document.getElementById("displayEthAddress").value = trustEthAddress;
+
+      console.log("ETH address set in modal:", trustEthAddress);
+    });
+  }
+
+  /* =====================================================
+     CHECK METAMASK ON LOAD
+  ===================================================== */
+  checkMetaMask();
+});
+
+/* =====================================================
+   METAMASK STATUS CHECK
+===================================================== */
+async function checkMetaMask() {
+  const statusElement = document.getElementById("metamaskStatus");
+  const statusText = document.getElementById("metamaskStatusText");
+
+  if (!statusElement || !statusText) return;
+
+  statusElement.classList.remove("d-none");
+
+  if (typeof window.ethereum === "undefined") {
+    statusElement.className = "metamask-status metamask-not-connected";
+    statusText.textContent = "MetaMask not detected.";
+    return false;
+  }
+
+  const accounts = await ethereum.request({ method: "eth_accounts" });
+  if (accounts.length === 0) {
+    statusElement.className = "metamask-status metamask-not-connected";
+    statusText.textContent = "Please connect MetaMask wallet.";
+    return false;
+  }
+
+  statusElement.className = "metamask-status metamask-connected";
+  statusText.textContent = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+  return true;
+}
+
+/* =====================================================
+   UPDATED DONATION PROCESS (TX → THEN DJANGO)
+===================================================== */
+async function processDonation() {
+  const btn = document.getElementById("confirmDonationBtn");
+  const btnText = document.getElementById("confirmBtnText");
+  const btnSpinner = document.getElementById("confirmBtnSpinner");
+
+  btn.disabled = true;
+  if (btnText) btnText.textContent = "Processing...";
+  if (btnSpinner) btnSpinner.classList.remove("d-none");
+
+  try {
+    if (!window.ethereum) {
+      throw new Error("MetaMask not found");
+    }
+
+    // 🔴 ENSURE GANACHE NETWORK (1337)
+    try {
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x539" }], // 1337
+      });
+    } catch (switchError) {
+      // Chain not added → add it
+      if (switchError.code === 4902) {
+        await ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: "0x539",
+            chainName: "Ganache Local",
+            rpcUrls: ["http://127.0.0.1:7545"],
+            nativeCurrency: {
+              name: "Ether",
+              symbol: "ETH",
+              decimals: 18
+            }
+          }]
+        });
+      } else {
+        throw new Error("Please switch MetaMask to Ganache network");
+      }
+    }
+
+    const trustId = document.getElementById("trustIdInput").value;
+    const trustEthAddress = document
+      .getElementById("trustEthAddressInput")
+      .value
+      .trim();
+
+    const inrAmount = parseFloat(
+      document.getElementById("amountInrInput").value
+    );
+
+    const ETH_RATE_INR = 300000; // example rate
+    if (isNaN(inrAmount) || inrAmount <= 0) {
+      throw new Error("Enter valid INR amount");
+    }
+
+    const amountEth = parseFloat((inrAmount / ETH_RATE_INR).toFixed(6));
+    document.getElementById("amountEthInput").value = amountEth;
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(trustEthAddress)) {
+      throw new Error("Invalid trust ETH address");
+    }
+
+    if (amountEth < 0.001) {
+      throw new Error("Minimum donation is 0.001 ETH");
+    }
+
+    // Request MetaMask account
+    const accounts = await ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    const fromAccount = accounts[0];
+
+    // ETH → Wei
+    const weiValue =
+      "0x" +
+      BigInt(Math.floor(amountEth * 1e18)).toString(16);
+
+    // 🔴 SEND TRANSACTION
+    const txHash = await ethereum.request({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: fromAccount,
+          to: trustEthAddress,
+          value: weiValue,
+          gas: "0x5208", // 21000
+        },
+      ],
+    });
+
+    if (!txHash) {
+      throw new Error("Transaction failed or rejected");
+    }
+
+    // 🔴 CALL DJANGO AFTER TX
+    const response = await fetch("{% url 'donation' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector(
+          "[name=csrfmiddlewaretoken]"
+        ).value,
+      },
+      body: JSON.stringify({
+        trust_id: trustId,
+        tx_hash: txHash,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.status === "success") {
+      alert("Donation successful!\nTX: " + txHash.slice(0, 20) + "...");
+      window.location.reload();
+    } else {
+      throw new Error(result.message || "Verification failed");
+    }
+  } catch (err) {
+    alert("Donation failed: " + err.message);
+    btn.disabled = false;
+    if (btnText) btnText.textContent = "Confirm Donation";
+    if (btnSpinner) btnSpinner.classList.add("d-none");
+  }
+}
+
+
+/* =====================================================
+   BLOCKCHAIN INFO
+===================================================== */
+function showBlockchainInfo(trustName, ethAddress) {
+  alert(
+    "Blockchain Info\n\n" +
+      "Trust: " + trustName + "\n" +
+      "ETH Address: " + ethAddress + "\n\n" +
+      "✔ MetaMask Transaction\n" +
+      "✔ Blockchain Verified\n" +
+      "✔ DB Stores Proof Only"
+  );
+}
+</script>
+
+  </body>
+</html>

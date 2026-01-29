@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="sidebar">
+    <a href="trust_dashboard">View Transactions</a>
+    <a href="trust_send_money">Send Money to Users</a>  <!-- Add this link -->
+</div>
+
+<div class="content">
+    <h1>Send Money to Users</h1>
+    <hr>
+    <form action="{% url 'trust_send_money' %}" method="post">  <!-- Assuming trust_send_money is the name of your URL pattern -->
+        {% csrf_token %}
+        <div class="row col-lg-6">
+            <div class="col-lg-12">
+                <label> User Name</label>
+                <select class="form-control" id="username" name='username'>
+                    {% for user in users %}
+                    <option value="{{ user.username }}">{{ user.first_name }}</option>  <!-- Use user.username for value -->
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-12" style="margin-top: 5%;">
+                <label> Amount (in ₹) *:</label>
+                <input type="number" class="form-control" id="amount" name='amount' min="0" required>
+            </div>
+            <div class="col-lg-12" style="margin-top: 5%;">
+                <button type="submit" class="btn btn-primary">Send Money</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock body %}

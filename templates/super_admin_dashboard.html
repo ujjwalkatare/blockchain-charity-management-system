@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Super Admin Dashboard - Donation System</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        --secondary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        --danger-gradient: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        --sidebar-width: 250px;
+        --border-radius: 10px;
+        --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease-in-out;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* Main container */
+      .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      /* Sidebar - Fixed on desktop, hidden on mobile */
+      .sidebar {
+        background: var(--primary-gradient);
+        color: white;
+        height: 100vh;
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--sidebar-width);
+        z-index: 1050;
+        overflow-y: auto;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Mobile sidebar behavior */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1040;
+          transition: var(--transition);
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Desktop behavior */
+      @media (min-width: 769px) {
+        .main-content {
+          margin-left: var(--sidebar-width);
+          transition: var(--transition);
+        }
+
+        .mobile-navbar {
+          display: none !important;
+        }
+      }
+
+      /* Sidebar content */
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        display: block;
+        transition: var(--transition);
+        border-radius: 5px;
+        margin: 5px 10px;
+        position: relative;
+      }
+
+      .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+      }
+
+      .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #e74c3c;
+      }
+
+      .sidebar a.active::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: #e74c3c;
+      }
+
+      .sidebar .nav {
+        flex: 1;
+      }
+
+      /* Content area */
+      .content {
+        padding: 20px;
+        min-height: calc(100vh - 70px);
+      }
+
+      /* Cards */
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: var(--box-shadow);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        background-color: white;
+        border-bottom: 2px solid #f1f1f1;
+        font-weight: 600;
+        font-size: 1.2rem;
+        padding: 1rem 1.5rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      /* Buttons */
+      .btn-donate {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+      }
+
+      .btn-donate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+      }
+
+      .btn-primary {
+        background: var(--secondary-gradient);
+        border: none;
+      }
+
+      .btn-success {
+        background: var(--success-gradient);
+        border: none;
+      }
+
+      .btn-danger {
+        background: var(--danger-gradient);
+        border: none;
+      }
+
+      .btn-outline-primary {
+        border-color: #667eea;
+        color: #667eea;
+      }
+
+      .btn-outline-primary:hover {
+        background: var(--secondary-gradient);
+        border-color: transparent;
+        color: white;
+      }
+
+      /* Trust Cards */
+      .trust-card {
+        border-left: 5px solid #3498db;
+      }
+
+      .trust-name {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .trust-contact {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .trust-address {
+        color: #34495e;
+        font-size: 0.95rem;
+        margin-top: 5px;
+      }
+
+      /* Navbar */
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      /* User Avatar */
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--secondary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .mobile-user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      /* Stat Cards */
+      .stat-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: var(--transition);
+        height: 100%;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #3498db;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Alerts */
+      .alert-custom {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Mobile navbar */
+      .mobile-navbar {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 1040;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        height: 70px;
+      }
+
+      .hamburger-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .hamburger-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Table Styling */
+      .table-custom {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        margin-bottom: 0;
+      }
+
+      .table-custom thead {
+        background: var(--secondary-gradient);
+        color: white;
+      }
+
+      .table-custom th {
+        border: none;
+        font-weight: 600;
+        padding: 15px;
+        vertical-align: middle;
+      }
+
+      .table-custom td {
+        padding: 15px;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .table-custom tbody tr {
+        transition: background-color 0.2s;
+      }
+
+      .table-custom tbody tr:hover {
+        background-color: rgba(52, 152, 219, 0.05);
+      }
+
+      .eth-address {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 5px 10px;
+        border-radius: 4px;
+        word-break: break-all;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .eth-address:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      /* Badges */
+      .badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        border: none;
+      }
+
+      .badge.bg-primary {
+        background: var(--secondary-gradient) !important;
+      }
+
+      .badge.bg-success {
+        background: var(--success-gradient) !important;
+      }
+
+      .badge.bg-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+      }
+
+      .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+        color: #212529 !important;
+      }
+
+      /* Loading overlay */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        display: none;
+      }
+
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+
+        .stat-number {
+          font-size: 1.5rem;
+        }
+
+        .card-header {
+          font-size: 1.1rem;
+          padding: 0.75rem 1rem;
+        }
+
+        .table-custom {
+          font-size: 14px;
+        }
+
+        .table-custom th,
+        .table-custom td {
+          padding: 10px 8px;
+        }
+
+        .eth-address {
+          font-size: 10px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 10px;
+        }
+
+        .stat-card {
+          padding: 15px 10px;
+        }
+
+        .table-custom {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-sm {
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+      }
+
+      /* Print styles */
+      @media print {
+        .sidebar,
+        .mobile-navbar,
+        .navbar,
+        .btn,
+        .no-print {
+          display: none !important;
+        }
+
+        .main-content {
+          margin-left: 0 !important;
+        }
+
+        .card {
+          box-shadow: none !important;
+          border: 1px solid #dee2e6 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Mobile Navbar -->
+    <div class="mobile-navbar d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <button class="hamburger-btn me-3" id="sidebarToggle" aria-label="Toggle sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0" style="color: white; font-size: 1.3rem">
+          <i class="fas fa-crown me-2"></i> Super Admin
+        </span>
+      </div>
+      <div class="mobile-user-info">
+        <div class="mobile-user-avatar">SA</div>
+        <span class="d-none d-sm-inline">Super Admin</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column align-items-center py-4">
+          <div class="user-avatar mb-3" style="background: var(--secondary-gradient);">
+            SA
+          </div>
+          <h5 class="text-center mb-2">Super Admin</h5>
+          <small class="text-white-50">Full System Access</small>
+        </div>
+
+        <nav class="nav flex-column flex-grow-1 px-2">
+          <a href="{% url 'super_admin_dashboard' %}" class="active">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+          </a>
+          <a href="{% url 'super_admin_transactions' %}">
+            <i class="fas fa-users me-2"></i> Manage Donors
+          </a>
+          <!-- <a href="#">
+            <i class="fas fa-building me-2"></i> Manage Trusts
+          </a>
+          <a href="#">
+            <i class="fas fa-chart-bar me-2"></i> Analytics
+          </a>
+          <a href="#">
+            <i class="fas fa-cog me-2"></i> System Settings
+          </a> -->
+          <div class="mt-auto">
+            <hr class="text-white-50 mx-3 my-3" />
+            <a href="{% url 'log_out' %}" class="text-danger">
+              <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation (Desktop only) -->
+      <nav class="navbar navbar-light bg-white border-bottom px-4 d-none d-md-block">
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="fas fa-crown text-primary me-2"></i> Super Admin Dashboard
+          </span>
+          <div class="d-flex align-items-center">
+            <span class="me-3 text-muted">Welcome, Super Admin</span>
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-user-shield me-1"></i> Account
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-user-cog me-2"></i> Profile Settings
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-shield-alt me-2"></i> Security
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="{% url 'log_out' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row mb-4">
+          <div class="col-12">
+            {% for message in messages %}
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show alert-custom"
+              role="alert"
+            >
+              <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}exclamation-triangle{% endif %} me-2"
+              ></i>
+              {{ message }}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+              ></button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-number">{{ donors|length }}</div>
+              <div class="stat-label">Total Donors</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="stat-number">{{ trusts|length }}</div>
+              <div class="stat-label">Total Trusts</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <div class="stat-number">
+                ₹ 
+                {% with total_donated=0 %}
+                  {% for donor in donors %}
+                    {% with total_donated=total_donated|add:donor.total_donated_inr %}
+                    {% endwith %}
+                  {% endfor %}
+                  {{ total_donated|default:"0" }}
+                {% endwith %}
+              </div>
+              <div class="stat-label">Total Donations</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="stat-number">
+                ₹ 
+                {% with total_received=0 %}
+                  {% for trust in trusts %}
+                    {% with total_received=total_received|add:trust.total_received_inr %}
+                    {% endwith %}
+                  {% endfor %}
+                  {{ total_received|default:"0" }}
+                {% endwith %}
+              </div>
+              <div class="stat-label">Total Received</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DONOR LIST Section -->
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="fas fa-users me-2 text-primary"></i> Donors Overview
+                </div>
+                <span class="badge bg-primary">{{ donors|length }} donors</span>
+              </div>
+
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-hover table-custom mb-0">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Donor Name</th>
+                        <th>Donation Count</th>
+                        <th>Total Donated (INR)</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for donor in donors %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="width: 35px; height: 35px; font-size: 1rem; background: var(--secondary-gradient);">
+                              {{ donor.donor_name|first|upper }}
+                            </div>
+                            <strong>{{ donor.donor_name }}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge bg-info">{{ donor.donation_count }}</span>
+                        </td>
+                        <td class="fw-bold text-success">₹ {{ donor.total_donated_inr }}</td>
+                        <td>
+                          <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary">
+                              <i class="fas fa-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-outline-info">
+                              <i class="fas fa-chart-bar me-1"></i> Stats
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                          <i class="fas fa-users fa-2x mb-3"></i><br>
+                          No donors found
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRUST LIST Section -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="fas fa-building me-2 text-primary"></i> Trusts Overview
+                </div>
+                <span class="badge bg-primary">{{ trusts|length }} trusts</span>
+              </div>
+
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-hover table-custom mb-0">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Trust Name</th>
+                        <th>ETH Address</th>
+                        <th>Total Received (INR)</th>
+                        <th>Total Utilized (INR)</th>
+                        <th>Balance (INR)</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for trust in trusts %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="width: 35px; height: 35px; font-size: 1rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                              {{ trust.trust_name|first|upper }}
+                            </div>
+                            <strong>{{ trust.trust_name }}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="eth-address" title="{{ trust.eth_address }}">
+                            {{ trust.eth_address|slice:":10" }}...{{ trust.eth_address|slice:"-8:" }}
+                          </div>
+                        </td>
+                        <td class="fw-bold text-success">₹ {{ trust.total_received_inr }}</td>
+                        <td class="fw-bold text-info">₹ {{ trust.total_utilized_inr }}</td>
+                        <td class="fw-bold text-warning">
+                          ₹ 
+                          {% with balance=trust.total_received_inr|default:0|add:"0" %}
+                            {% with utilized=trust.total_utilized_inr|default:0|add:"0" %}
+                              {{ balance|floatformat:2 }}
+                            {% endwith %}
+                          {% endwith %}
+                        </td>
+                        <td>
+                          <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary">
+                              <i class="fas fa-chart-bar me-1"></i> Stats
+                            </button>
+                            <button class="btn btn-outline-info">
+                              <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                          <i class="fas fa-building fa-2x mb-3"></i><br>
+                          No trusts found
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // DOM Ready function
+      document.addEventListener('DOMContentLoaded', function () {
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener('click', function () {
+          sidebar.classList.toggle('show');
+          sidebarOverlay.classList.toggle('show');
+          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        });
+
+        // Close sidebar when clicking on overlay
+        sidebarOverlay.addEventListener('click', function () {
+          sidebar.classList.remove('show');
+          sidebarOverlay.classList.remove('show');
+          document.body.style.overflow = '';
+        });
+
+        // Close sidebar when clicking on a link (for mobile)
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        sidebarLinks.forEach((link) => {
+          link.addEventListener('click', function () {
+            if (window.innerWidth < 769) {
+              sidebar.classList.remove('show');
+              sidebarOverlay.classList.remove('show');
+              document.body.style.overflow = '';
+            }
+          });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+          setTimeout(function () {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+          }, 5000);
+        });
+
+        // Close sidebar on window resize if needed
+        window.addEventListener('resize', function () {
+          if (window.innerWidth >= 769) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+          }
+        });
+
+        // Handle table row clicks for better UX
+        const tableRows = document.querySelectorAll('.table-custom tbody tr');
+        tableRows.forEach(row => {
+          row.addEventListener('click', function (e) {
+            if (!e.target.closest('a') && !e.target.closest('button')) {
+              this.classList.toggle('table-active');
+            }
+          });
+        });
+
+        // Copy ETH address on click
+        const ethAddresses = document.querySelectorAll('.eth-address');
+        ethAddresses.forEach(address => {
+          address.addEventListener('click', function () {
+            const fullAddress = this.getAttribute('title');
+            if (fullAddress) {
+              navigator.clipboard.writeText(fullAddress).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.classList.add('bg-success', 'text-white');
+                setTimeout(() => {
+                  this.textContent = originalText;
+                  this.classList.remove('bg-success', 'text-white');
+                }, 2000);
+              });
+            }
+          });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+          // Close sidebar with Escape key
+          if (e.key === 'Escape' && window.innerWidth < 769) {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+          }
+          
+          // Toggle sidebar with Ctrl+/
+          if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            sidebarToggle.click();
+          }
+        });
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Handle page transitions
+        const pageLinks = document.querySelectorAll('a[href^="/"], a[href^="{% url']');
+        pageLinks.forEach(link => {
+          link.addEventListener('click', function (e) {
+            // Only show loading for internal links that aren't already loading
+            if (this.getAttribute('href') && !this.classList.contains('disabled')) {
+              const href = this.getAttribute('href');
+              if (href && !href.startsWith('#') && !this.hasAttribute('data-bs-toggle')) {
+                showLoading();
+              }
+            }
+          });
+        });
+
+        // View donor details
+        const viewButtons = document.querySelectorAll('.btn-outline-primary');
+        viewButtons.forEach(button => {
+          button.addEventListener('click', function () {
+            const donorName = this.closest('tr').querySelector('strong').textContent;
+            alert(`Viewing details for: ${donorName}`);
+          });
+        });
+      });
+
+      // Global functions
+      function showLoading() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function hideLoading() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      }
+
+      // Hide loading when page is fully loaded
+      window.addEventListener('load', hideLoading);
+
+      // Error handling for page load
+      window.addEventListener('error', hideLoading);
+
+      // Print page function
+      function printPage() {
+        window.print();
+      }
+
+      // Export data function
+      function exportData(format) {
+        showLoading();
+        // Simulate export process
+        setTimeout(() => {
+          hideLoading();
+          alert(`Data exported as ${format.toUpperCase()} successfully!`);
+        }, 1500);
+      }
+
+      // View donor statistics
+      function viewDonorStats(donorId) {
+        showLoading();
+        // Simulate API call
+        setTimeout(() => {
+          hideLoading();
+          alert(`Showing statistics for donor ID: ${donorId}`);
+        }, 1000);
+      }
+
+      // View trust statistics
+      function viewTrustStats(trustId) {
+        showLoading();
+        // Simulate API call
+        setTimeout(() => {
+          hideLoading();
+          alert(`Showing statistics for trust ID: ${trustId}`);
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>
